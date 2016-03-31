@@ -51,16 +51,20 @@ function gotDevices(deviceInfos) {
     option2.value = deviceInfo.deviceId;
 
     if (deviceInfo.kind === 'audioinput') {
-      console.log("Set input option text");
+      //console.log("Set input option text");
       option1.text = deviceInfo.label || 'microphone ' + (audioInput1Select.length + 1);
       option2.text = deviceInfo.label || 'microphone ' + (audioInput1Select.length + 1);
+      console.log("Input device: "+option1.text + ", " + option1.value);
+
 
       audioInput1Select.appendChild(option1);
       audioInput2Select.appendChild(option2);
     } else if (deviceInfo.kind === 'audiooutput') {
-      console.log("Set output option text");
+      //console.log("Set output option text");
       option1.text = deviceInfo.label || 'speaker ' + (audioOutput1Select.length + 1);
       option2.text = deviceInfo.label || 'microphone ' + (audioInput1Select.length + 1);
+      console.log("Output device: "+option1.text + ", " + option1.value);
+
 
       audioOutput1Select.appendChild(option1);
       audioOutput2Select.appendChild(option2);
@@ -160,6 +164,38 @@ function stopCall2() {
 
 }
 
+function getCall1InputThenCall1() {
+  var audioSource1 = audioInput1Select.value;
+  var constraints1 = {
+    audio: {deviceId: audioSource1 ? {exact: audioSource1} : undefined}
+  };
+
+  // Get stream for first audio input device
+  navigator.mediaDevices.getUserMedia(constraints1)
+      .then(function(stream) {
+
+        window.stream1 = stream; // make stream available to console
+        // Refresh button list in case labels have become available
+        call1();
+      })
+}
+
+function getCall2InputThenCall2() {
+  var audioSource2 = audioInput2Select.value;
+  var constraints2 = {
+    audio: {deviceId: audioSource2 ? {exact: audioSource2} : undefined}
+  };
+
+  // Get stream for first audio input device
+  navigator.mediaDevices.getUserMedia(constraints2)
+      .then(function(stream) {
+
+        window.stream2 = stream; // make stream available to console
+        // Refresh button list in case labels have become available
+        call2();
+      })
+}
+
 function call1() {
 
   call1StartBtn.setAttribute("class","hidden");
@@ -169,6 +205,16 @@ function call1() {
 
   var audioDestination1 = audioOutput1Select.value;
   attachSinkId(audio1, audioDestination1);
+
+
+
+  if (window.stream1) {
+    window.stream1.getTracks().forEach(function(track) {
+      track.stop();
+    });
+  }
+
+
 
   var constraints1 = {
     media: {
@@ -199,6 +245,14 @@ function call2() {
   var audioDestination2 = audioOutput2Select.value;
   attachSinkId(audio2, audioDestination2);
 
+
+
+  if (window.stream2) {
+    window.stream2.getTracks().forEach(function(track) {
+      track.stop();
+    });
+  }
+
   var constraints2 = {
     media: {
       stream: window.stream2,
@@ -218,17 +272,9 @@ function call2() {
 }
 
 function start() {
-  if (window.stream1) {
-    window.stream1.getTracks().forEach(function(track) {
-      track.stop();
-    });
-  }
 
-  if (window.stream2) {
-    window.stream2.getTracks().forEach(function(track) {
-      track.stop();
-    });
-  }
+
+
 
   var audioSource1 = audioInput1Select.value;
   var constraints1 = {
@@ -241,7 +287,6 @@ function start() {
 
     window.stream1 = stream; // make stream available to console
     // Refresh button list in case labels have become available
-    return navigator.mediaDevices.enumerateDevices();
   })
   .then(gotDevices)
   .catch(errorCallback);
@@ -265,4 +310,3 @@ function start() {
 
 }
 
-start();
