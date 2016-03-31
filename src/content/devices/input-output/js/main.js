@@ -174,6 +174,11 @@ function getCall1InputThenCall1() {
   navigator.mediaDevices.getUserMedia(constraints1)
       .then(function(stream) {
 
+        stream.onactive = function(e) {
+          console.log("OnActive");
+          console.log(e);
+        };
+
         window.stream1 = stream; // make stream available to console
         // Refresh button list in case labels have become available
         call1();
@@ -206,30 +211,6 @@ function call1() {
   var audioDestination1 = audioOutput1Select.value;
   attachSinkId(audio1, audioDestination1);
 
-
-
-  if (window.stream1) {
-    window.stream1.getTracks().forEach(function(track) {
-      track.stop();
-    });
-  }
-
-
-
-  var constraints1 = {
-    media: {
-      stream: window.stream1,
-      render: {
-        remote: {
-          audio: audio1
-        },
-        local: {
-          audio: audio1
-        }
-      }
-    }
-  };
-
   audio1.src = window.URL.createObjectURL(window.stream1);
   call1Session = window.ua.invite('15555557998@webrtctest.onsip.com', audio1);
 
@@ -245,27 +226,6 @@ function call2() {
   var audioDestination2 = audioOutput2Select.value;
   attachSinkId(audio2, audioDestination2);
 
-
-
-  if (window.stream2) {
-    window.stream2.getTracks().forEach(function(track) {
-      track.stop();
-    });
-  }
-
-  var constraints2 = {
-    media: {
-      stream: window.stream2,
-      render: {
-        remote: {
-          audio: audio2
-        },
-        local: {
-          audio: audio2
-        }
-      }
-    }
-  };
   audio2.src = window.URL.createObjectURL(window.stream2);
   call2Session = window.ua.invite('15555557998@webrtctest.onsip.com', audio2);
   logSession(call2Session);
